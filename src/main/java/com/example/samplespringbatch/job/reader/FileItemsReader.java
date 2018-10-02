@@ -9,18 +9,28 @@ import org.springframework.stereotype.Component;
 
 import com.example.samplespringbatch.dto.PersonDTO;
 
+/**
+ * Alternatives to saveState @see https://docs.spring.io/spring-batch/4.0.x/reference/html/readersAndWriters.html#process-indicator
+ * 
+ * @author razvan.parautiu
+ *
+ */
+
 @Component
 public class FileItemsReader {
 
 	@Bean
 	public FlatFileItemReader<PersonDTO> personFileReader() {
 		return new FlatFileItemReaderBuilder<PersonDTO>().name("personItemReader")
-				.resource(new ClassPathResource("sample-data.csv")).delimited()
+				.resource(new ClassPathResource("sample-data.csv"))
+				.delimited()
 				.names(new String[] { "firstName", "lastName" })
 				.fieldSetMapper(new BeanWrapperFieldSetMapper<PersonDTO>() {
 					{
 						setTargetType(PersonDTO.class);
 					}
-				}).build();
+				})
+				.saveState(true)
+				.build();
 	}
 }
