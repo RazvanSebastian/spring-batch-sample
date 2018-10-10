@@ -11,26 +11,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 @Configuration
 @EnableBatchProcessing
 public class BatchConfiguration extends DefaultBatchConfigurer {
-	
+
 	@Autowired
 	private JobRepository jobRepository;
 
 	@Override
 	public void setDataSource(DataSource dataSource) {
 	}
-	
+
 	@Bean
-	public JobLauncher jobAsyncLauncher() throws Exception {
-	        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
-	        jobLauncher.setJobRepository(jobRepository);
-	        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
-	        jobLauncher.afterPropertiesSet();
-	        return jobLauncher;
+	public TaskExecutor asyncTskExecutor() {
+		return new SimpleAsyncTaskExecutor("spring_batch_async_task_executor");
 	}
-	
+
+	@Bean
+	public JobLauncher jobAsyncLauncher(TaskExecutor asyncTskExecutor) throws Exception {
+		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+		jobLauncher.setJobRepository(jobRepository);
+		jobLauncher.setTaskExecutor(asyncTskExecutor);
+		jobLauncher.afterPropertiesSet();
+		return jobLauncher;
+	}
 
 }

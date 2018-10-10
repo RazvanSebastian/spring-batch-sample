@@ -16,12 +16,14 @@ public class PersonImportJobItemProcessor implements ItemProcessor<PersonDTO, Pe
 
 	@Override
 	public Person process(PersonDTO item) throws Exception {
-		return new Person(dateBasicUtil.generateRegisterDate(), item.getFirstName(), item.getLastName());
+		//Thread.sleep(1000);
+		return new Person(dateBasicUtil.generateRegisterDate(), item.getEmail(), item.getDepartment(),
+				item.getFirstName(), item.getLastName());
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		
+
 	}
 
 	@Autowired

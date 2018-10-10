@@ -8,8 +8,12 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,17 +31,25 @@ public class PersonJobLuncherController {
 
 	@Autowired
 	private Job job1;
-
+	
 	@Autowired
 	private JobExplorer jobs;
 
 	@GetMapping("/jobLuncher")
 	@ResponseStatus(code = HttpStatus.OK)
-	public String handle() throws Exception {
-		JobExecution execution = jobAsyncLauncher.run(job1, new JobParameters());
-		return "JobExecution id = " + execution.getId();
+	public String handle() {
+		JobExecution execution;
+		try {
+			execution = jobAsyncLauncher.run(job1, new JobParameters());
+			return "JobExecution id = " + execution.getId();
+		} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
+				| JobParametersInvalidException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "";
 	}
-
+	
 	@GetMapping(produces ="text/html" ,value = "/job-status/{id}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public String getStatus(@PathVariable("id") Long id) {

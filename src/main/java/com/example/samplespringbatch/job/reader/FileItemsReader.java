@@ -19,12 +19,11 @@ import com.example.samplespringbatch.dto.PersonDTO;
 @Component
 public class FileItemsReader {
 
-	@Bean
-	public FlatFileItemReader<PersonDTO> personFileReader() {
+	public FlatFileItemReader<PersonDTO> personFileReader(String fileName) {
 		return new FlatFileItemReaderBuilder<PersonDTO>().name("personItemReader")
-				.resource(new ClassPathResource("sample-data.csv"))
+				.resource(new ClassPathResource(fileName))
 				.delimited()
-				.names(new String[] { "firstName", "lastName" })
+				.names(new String[] { "email","department","firstName", "lastName" })
 				.fieldSetMapper(new BeanWrapperFieldSetMapper<PersonDTO>() {
 					{
 						setTargetType(PersonDTO.class);

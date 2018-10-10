@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.CassandraClusterFactoryBean;
+import org.springframework.data.cassandra.config.CassandraEntityClassScanner;
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.core.CassandraOperations;
@@ -47,32 +48,34 @@ public class CassandrConfiguration {
 	}
 
 	@Bean
-	public CassandraMappingContext cassandraMappingContext() {
+	public CassandraMappingContext cassandraMappingContext(CassandraClusterFactoryBean cluster) throws ClassNotFoundException {
 		CassandraMappingContext cassandraMappingContext = new CassandraMappingContext();
-		cassandraMappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster().getObject(), keyspace));
-
+		cassandraMappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster.getObject(), keyspace));
+		cassandraMappingContext.setInitialEntitySet(CassandraEntityClassScanner.scan("com.example.samplespringbatch.model"));
+		
 		return cassandraMappingContext;
 	}
 
 	@Bean
-	public CassandraConverter cassandraConverter() {
-		return new MappingCassandraConverter(cassandraMappingContext());
+	public CassandraConverter cassandraConverter(CassandraMappingContext cassandraMappingContext) {
+		return new MappingCassandraConverter(cassandraMappingContext);
 	}
 
 	@Bean
-	public CassandraSessionFactoryBean session() {
+	public CassandraSessionFactoryBean session(CassandraClusterFactoryBean cluster,
+			CassandraConverter cassandraConverter) {
 		CassandraSessionFactoryBean sessionFactoryBean = new CassandraSessionFactoryBean();
-		sessionFactoryBean.setCluster(cluster().getObject());
-		sessionFactoryBean.setConverter(cassandraConverter());
+		sessionFactoryBean.setCluster(cluster.getObject());
+		sessionFactoryBean.setConverter(cassandraConverter);
 		sessionFactoryBean.setKeyspaceName(keyspace);
-		sessionFactoryBean.setSchemaAction(SchemaAction.NONE);
+		sessionFactoryBean.setSchemaAction(SchemaAction.CREATE_IF_NOT_EXISTS);
 
 		return sessionFactoryBean;
 	}
 
 	@Bean
-	public CassandraOperations cassandraTemplate() {
-		return new CassandraTemplate(session().getObject());
+	public CassandraOperations cassandraTemplate(CassandraSessionFactoryBean session) {
+		return new CassandraTemplate(session.getObject());
 	}
 
 }

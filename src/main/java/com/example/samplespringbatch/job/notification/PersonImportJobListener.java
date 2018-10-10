@@ -12,7 +12,7 @@ import com.example.samplespringbatch.model.Person;
 import com.example.samplespringbatch.service.PersonService;
 
 @Component
-public class PersonImportJobNotification extends JobExecutionListenerSupport {
+public class PersonImportJobListener extends JobExecutionListenerSupport {
 
 	@Autowired
 	private PersonService personService;
