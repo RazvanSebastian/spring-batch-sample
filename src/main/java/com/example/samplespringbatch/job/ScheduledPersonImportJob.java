@@ -31,14 +31,14 @@ public class ScheduledPersonImportJob {
 	private JobExplorer jobs;
 
 	@Autowired
-	private Job job1;
+	private Job personImportJob;
 
 	@Scheduled(fixedRate = 5000)
 	public void runJob1() throws Exception {
 		List<JobInstance> lastInstances = jobs.getJobInstances(JOB1_NAME, 0, 1);
 		JobExecution execution = null;
 		if (lastInstances.isEmpty()) {
-			execution = jobLauncher.run(job1, new JobParameters());
+			execution = jobLauncher.run(personImportJob, new JobParameters());
 			loggExecutionResult(execution);
 		} else {
 			Long executionId = operator.startNextInstance(JOB1_NAME);

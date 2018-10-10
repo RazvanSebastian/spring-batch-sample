@@ -10,22 +10,23 @@ import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.samplespringbatch.model.Person;
-import com.example.samplespringbatch.service.PersonService;
+import com.example.samplespringbatch.model.Project;
+import com.example.samplespringbatch.service.ProjectSevice;
 
 @Component
-public class PersonImportJobListener extends JobExecutionListenerSupport {
+public class ProjectImportJobListener extends JobExecutionListenerSupport {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PersonImportJobListener.class);
 
 	@Autowired
-	private PersonService personService;
+	private ProjectSevice projectSevice;
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
 		LOGGER.info("Job with instance " + jobExecution.getJobInstance() + " created at "
 				+ jobExecution.getCreateTime().toString());
 		super.beforeJob(jobExecution);
+
 	}
 
 	@Override
@@ -33,9 +34,9 @@ public class PersonImportJobListener extends JobExecutionListenerSupport {
 		LOGGER.info("Job with instance " + jobExecution.getJobInstance() + " ended at "
 				+ jobExecution.getCreateTime().toString() + " with following result");
 		if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-			List<Person> list = personService.findAll();
-			for (Person person : list) {
-				System.out.println(person);
+			List<Project> list = projectSevice.findAll();
+			for (Project project : list) {
+				System.out.println(project);
 			}
 		}
 	}

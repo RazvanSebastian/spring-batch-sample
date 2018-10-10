@@ -6,9 +6,13 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Isolation;
@@ -18,12 +22,11 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import com.example.samplespringbatch.dto.PersonDTO;
 import com.example.samplespringbatch.job.notification.PersonImportJobListener;
 import com.example.samplespringbatch.job.processor.PersonImportJobItemProcessor;
-import com.example.samplespringbatch.job.reader.FileItemsReader;
 import com.example.samplespringbatch.job.writer.PersonImportJobItemWriter;
 import com.example.samplespringbatch.model.Person;
 
 @Configuration
-public class PersonImportJob {
+public class PersonImportJobConfiguration {
 
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
@@ -37,22 +40,19 @@ public class PersonImportJob {
 	@Autowired
 	private PersonImportJobItemWriter writer;
 	
-	@Autowired
-	private FileItemsReader reader;
-	
 	@Bean
-	public Job job1(JobRepository jobRepository, PersonImportJobListener notificationListener, Step step) {
+	public Job personImportJob(JobRepository jobRepository, PersonImportJobListener notificationListener, Step personImportStep1) {
 		return jobBuilderFactory.get("personImportJob")
 				.repository(jobRepository)
 				.incrementer(new RunIdIncrementer())
 				.listener(notificationListener)
-				.flow(step)
+				.flow(personImportStep1)
 				.end()
 				.build();
 	}
 
 	@Bean
-	protected Step step(PlatformTransactionManager transactionManager) {
+	protected Step personImportStep1(PlatformTransactionManager transactionManager,FlatFileItemReader<PersonDTO> personFileReader) {
 		DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute();
 		transactionAttribute.setPropagationBehavior(Propagation.REQUIRED.value());
 		transactionAttribute.setIsolationLevel(Isolation.DEFAULT.value());
@@ -61,13 +61,28 @@ public class PersonImportJob {
 		return stepBuilderFactory.get("step")
 				.transactionManager(transactionManager)
 				.<PersonDTO, Person>chunk(2)
-				.reader(reader.personFileReader("sample-data.csv"))
+				.reader(personFileReader)
 				.processor(processor)
 				.writer(writer)
 				.faultTolerant()
 				.retryLimit(3)
 				.retry(DeadlockLoserDataAccessException.class)
 				.transactionAttribute(transactionAttribute)
+				.build();
+	}
+	
+	@Bean
+	public FlatFileItemReader<PersonDTO> personFileReader() {
+		return new FlatFileItemReaderBuilder<PersonDTO>().name("personItemReader")
+				.resource(new ClassPathResource("person.csv"))
+				.delimited()
+				.names(new String[] { "email","department","firstName", "lastName" })
+				.fieldSetMapper(new BeanWrapperFieldSetMapper<PersonDTO>() {
+					{
+						setTargetType(PersonDTO.class);
+					}
+				})
+				.saveState(true)
 				.build();
 	}
 

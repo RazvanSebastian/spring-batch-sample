@@ -5,18 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.cassandra.core.mapping.MapId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.samplespringbatch.exception.PersonNotFoundException;
 import com.example.samplespringbatch.model.Person;
-import com.example.samplespringbatch.repository.PersonRepository;
+import com.example.samplespringbatch.repository.IPersonRepository;
 import com.example.samplespringbatch.util.DateBasicUtil;
 
 @Service
 public class PersonService {
 
 	@Autowired
-	private PersonRepository personRepository;
+	private IPersonRepository personRepository;
 
 	@Autowired
 	private DateBasicUtil dateBasicUtil;
@@ -39,12 +41,9 @@ public class PersonService {
 		return list;
 	}
 
-	public List<Person> findAllWihtLastnameNot(String lastname) {
-		return personRepository.findAllWithLastnameNot(lastname);
-	}
-
-	public void update(Person person) {
-		personRepository.update(person.getFirstName(), person.getLastName(), person.getRegisterDate());
+	public Person find(MapId primaryKey) throws PersonNotFoundException {
+		return personRepository.findById(primaryKey).orElseThrow(
+				() -> new PersonNotFoundException("Person with priamry key" + primaryKey.toString() + " not found"));
 	}
 
 	public void delete(Person person) {
