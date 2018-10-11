@@ -24,13 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.samplespringbatch.exception.JobNotFoundException;
 import com.example.samplespringbatch.util.JobFactory;
+import com.example.samplespringbatch.util.JobLunchHandler;
 import com.example.samplespringbatch.util.JobName;
 
 @RestController("/job-luncher")
 public class JobLuncherController {
 
 	@Autowired
-	private JobLauncher jobAsyncLauncher;
+	private JobLunchHandler jobLunchHandler;
 
 	@Autowired
 	private JobFactory jobFactory;
@@ -43,7 +44,7 @@ public class JobLuncherController {
 	public String lunchJob(@RequestParam("job-name") JobName jobName) throws JobNotFoundException {
 		JobExecution execution;
 		try {
-			execution = jobAsyncLauncher.run(jobFactory.getJob(jobName), new JobParameters());
+			execution = jobLunchHandler.lunch(jobFactory.getJob(jobName));
 			StringBuilder builder = new StringBuilder();
 			builder
 				.append("Job name : ").append(execution.getJobInstance().getJobName()).append("\n")

@@ -30,7 +30,16 @@ public class BatchConfiguration extends DefaultBatchConfigurer {
 	}
 
 	@Bean
-	public JobLauncher jobAsyncLauncher(TaskExecutor asyncTskExecutor) throws Exception {
+	public JobLauncher personImportJobAsyncLauncher(TaskExecutor asyncTskExecutor) throws Exception {
+		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+		jobLauncher.setJobRepository(jobRepository);
+		jobLauncher.setTaskExecutor(asyncTskExecutor);
+		jobLauncher.afterPropertiesSet();
+		return jobLauncher;
+	}
+	
+	@Bean
+	public JobLauncher projectImportJobAsyncLauncher(TaskExecutor asyncTskExecutor) throws Exception {
 		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
 		jobLauncher.setJobRepository(jobRepository);
 		jobLauncher.setTaskExecutor(asyncTskExecutor);
