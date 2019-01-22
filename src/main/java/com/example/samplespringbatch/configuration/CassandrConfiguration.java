@@ -7,6 +7,8 @@ import org.springframework.data.cassandra.config.CassandraClusterFactoryBean;
 import org.springframework.data.cassandra.config.CassandraEntityClassScanner;
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
+import org.springframework.data.cassandra.core.AsyncCassandraOperations;
+import org.springframework.data.cassandra.core.AsyncCassandraTemplate;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.data.cassandra.core.convert.CassandraConverter;
@@ -14,6 +16,8 @@ import org.springframework.data.cassandra.core.convert.MappingCassandraConverter
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
 import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
+
+import com.datastax.driver.core.Session;
 
 /**
  * 
@@ -78,4 +82,8 @@ public class CassandrConfiguration {
 		return new CassandraTemplate(session.getObject());
 	}
 
+	@Bean
+	public AsyncCassandraOperations asyncCassandraTemplate(CassandraSessionFactoryBean session) {
+		return new AsyncCassandraTemplate(session.getObject());
+	}
 }

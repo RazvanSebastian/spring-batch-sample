@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 import com.example.samplespringbatch.exception.JobNotFoundException;
 
 @Component
-public class JobLunchHandler {
+public class JobLaunchHandler {
 
 	private JobLauncher personImportJobAsyncLauncher;
 	private JobLauncher projectImportJobAsyncLauncher;
 
-	public JobExecution lunch(Job job) throws JobExecutionAlreadyRunningException, JobRestartException,
+	public JobExecution launch(Job job) throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException, JobNotFoundException {
 		if (job.getName().equals("projectImportJob"))
 			return projectImportJobAsyncLauncher.run(job, new JobParameters());

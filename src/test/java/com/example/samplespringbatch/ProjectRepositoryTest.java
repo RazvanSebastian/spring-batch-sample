@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,12 +25,19 @@ public class ProjectRepositoryTest {
 	
 	@Test
 	public void test() {
-		List<Project> result = projectRepository.findByNameAndType("project3","front");
-		for (Project project : result) {
-			System.out.println(project);
-			
+		List<Project> result;
+		try {
+			result = projectRepository.findByNameAndType("project3","front");
+			for (Project project : result) {
+				System.out.println(project);
+				
+			}
+			assertFalse(result.isEmpty());
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			assertTrue(false);
 		}
-		assertFalse(result.isEmpty());
 	
 	}
 }

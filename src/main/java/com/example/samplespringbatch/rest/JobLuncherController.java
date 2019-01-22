@@ -4,13 +4,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
@@ -24,14 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.samplespringbatch.exception.JobNotFoundException;
 import com.example.samplespringbatch.util.JobFactory;
-import com.example.samplespringbatch.util.JobLunchHandler;
+import com.example.samplespringbatch.util.JobLaunchHandler;
 import com.example.samplespringbatch.util.JobName;
 
 @RestController("/job-luncher")
 public class JobLuncherController {
 
 	@Autowired
-	private JobLunchHandler jobLunchHandler;
+	private JobLaunchHandler jobLaunchHandler;
 
 	@Autowired
 	private JobFactory jobFactory;
@@ -39,12 +36,12 @@ public class JobLuncherController {
 	@Autowired
 	private JobExplorer jobs;
 
-	@GetMapping("/lunch")
+	@GetMapping("/launch")
 	@ResponseStatus(code = HttpStatus.OK)
 	public String lunchJob(@RequestParam("job-name") JobName jobName) throws JobNotFoundException {
 		JobExecution execution;
 		try {
-			execution = jobLunchHandler.lunch(jobFactory.getJob(jobName));
+			execution = jobLaunchHandler.launch(jobFactory.getJob(jobName));
 			StringBuilder builder = new StringBuilder();
 			builder
 				.append("Job name : ").append(execution.getJobInstance().getJobName()).append("\n")
